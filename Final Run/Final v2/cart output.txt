@@ -1,0 +1,97 @@
+Call:
+Call:
+rpart(formula = HERFLAG ~ ., data = dfV1.train, parms = list(split = "information"))
+  n= 27635 
+
+          CP nsplit rel error    xerror       xstd
+1 0.03856749      0 1.0000000 1.0000000 0.04505474
+2 0.01652893      3 0.8842975 0.8904959 0.04255787
+3 0.01549587      4 0.8677686 0.9070248 0.04294471
+4 0.01000000      6 0.8367769 0.9152893 0.04313674
+
+Variable importance
+ COCFLAG  FUCOC21  LSDFLAG  CRKFLAG  FUCOC18  PSILCY2 MORPHIN2 METHDON2  DILAUD2   SUMYFU DEMEROL2 
+      32       19        9        9        8        8        6        1        1        1        1 
+  IEMYFU  PSYYFU2  ULTRAM2 
+       1        1        1 
+
+
+            Overall
+CATAG6     6.689699
+COCFLAG  785.233068
+CRKFLAG  832.193013
+FUANL21    7.269476
+FUCOC21  620.192013
+FUCRK21   14.659219
+FUECS21    8.014528
+FUPCP21   24.434407
+HALFLAG  644.599428
+IEMYFU    21.090518
+MORPHIN2 159.007936
+OTHANL   142.551278
+OTHSED     4.486270
+OXYCODP2 785.396181
+PCPFLAG   18.618843
+PERCTYL2 156.342279
+PSYYFU2   11.227137
+SUMYFU    15.183695
+TXILALEV  19.986625
+
+
+**************** PRUNED TREE OUTPUT
+Fitted party:
+[1] root
+|   [2] COCFLAG in (0) Never used (IRCOCRC = 9): 0 (n = 24306, err = 0.2%)
+|   [3] COCFLAG in (1) Ever used (IRCOCRC = 1-3)
+|   |   [4] MORPHIN2 in (0) No/Unknown (Otherwise): 0 (n = 2990, err = 8.8%)
+|   |   [5] MORPHIN2 in (1) Yes (ANLCARD and MORPHINE=1,3)
+|   |   |   [6] CRKFLAG in (0) Never used (IRCRKRC = 9): 0 (n = 161, err = 32.3%)
+|   |   |   [7] CRKFLAG in (1) Ever used (IRCRKRC = 1-3): 1 (n = 178, err = 34.3%)
+
+Number of inner nodes:    3
+Number of terminal nodes: 4
+
+
+***************** BINARY EVALUATOR OUTPUT (Probability = 0.30)
+$AUC
+$AUC[[1]]
+[1] 0.924047
+
+
+$`D Statistic`
+[1] 0.2418382
+
+$`KS Statistic`
+  Group   CumPct0   CumPct1       Dif
+1     1 0.9921996 0.6113537 0.3808459
+2     2 0.9921996 0.6113537 0.3808459
+3     3 0.9921996 0.6113537 0.3808459
+
+$`Confusion Matrix`
+Confusion Matrix and Statistics
+
+          Reference
+Prediction     0     1
+         0 26966   212
+         1   280   178
+                                          
+               Accuracy : 0.9822          
+                 95% CI : (0.9806, 0.9837)
+    No Information Rate : 0.9859          
+    P-Value [Acc > NIR] : 1.000000        
+                                          
+                  Kappa : 0.4108          
+ Mcnemar's Test P-Value : 0.002523        
+                                          
+            Sensitivity : 0.9897          
+            Specificity : 0.4564          
+         Pos Pred Value : 0.9922          
+         Neg Pred Value : 0.3886          
+             Prevalence : 0.9859          
+         Detection Rate : 0.9758          
+   Detection Prevalence : 0.9834          
+      Balanced Accuracy : 0.7231          
+                                          
+       'Positive' Class : 0               
+                                          
+

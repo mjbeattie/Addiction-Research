@@ -1,0 +1,294 @@
+# NSDUH Dataset Analysis
+# Matthew J. Beattie
+# November 2016
+
+
+library(rpart)          # for decision tree modeling
+library(partykit)       # for visualizing trees
+library(ggplot2)        # for graphics
+library(ROCR)           # for graphics
+library(rattle)      		# fancy tree plot
+library(rpart.plot)			# enhanced tree plots
+library(RColorBrewer)		# color selection for fancy tree plot
+library(VIM)            # Visualization and Imputation of missing values
+library(pls)            # Principle component regression and partial least squares regression
+library(caret)          # Classification and regression training
+library(glmnet)         # Generalized linear model via penalized maximum likelihood
+library(lars)           # Least angle regression, LASSO and infinitesimal forward stagewise regression models
+library(C50)            # C5.0 decision tree algorithm
+library(ada)            # adaboost boosted tree algorithm
+library(car)            # companion to applied regression
+
+
+#********** Read in all variables of interest into a new dataframe **********#
+df <- da36361.0001
+
+# Demonstrate missingness of raw values
+dfMiss <- df[,c("CIGEVER", "ALCEVER", "MJEVER", "COCEVER", "CRKEVER", "HEREVER", "CODEINE")]
+summary(aggr(dfMiss))
+
+# Obtain column numbers of variables of interest
+# CIGFLAG - FUIEM21 Core drug use section
+# NDSSDNSP - ABDILAAL Substance dependence and abuse (remove for heroin usage analysis)
+# TXILALEX - SPECTILL Substance treatment
+# AMHINP2 - AMHTXRC3 Adult received mental health treatment in last year
+# K6SCMON - MHSUITRY K6 mental health score and suicidal tendency
+# GOVTPROG - OTHINS Income and insurance
+# IRSEX - HEALTH2 Demographics
+# EMPSTATY - Employment status
+
+a1 <- which(colnames(df) == "CIGFLAG")
+a2 <- which(colnames(df) == "FUIEM21")
+b1 <- which(colnames(df) == "NDSSDNSP")
+b2 <- which(colnames(df) == "ABDILAAL")
+c1 <- which(colnames(df) == "TXILALEV")
+c2 <- which(colnames(df) == "SPECTILL")
+d1 <- which(colnames(df) == "AMHINP2")
+d2 <- which(colnames(df) == "AMHTXRC3")
+e1 <- which(colnames(df) == "K6SCMON")
+e2 <- which(colnames(df) == "MHSUITRY")
+f1 <- which(colnames(df) == "GOVTPROG")
+f2 <- which(colnames(df) == "OTHINS")
+g1 <- which(colnames(df) == "IRSEX")
+g2 <- which(colnames(df) == "HEALTH2")
+h1 <- which(colnames(df) == "EMPSTATY")
+
+# Create a dataframe to include all columns in the study of interest
+dfStudy <- df[,c(a1:a2,b1:b2,c1:c2,d1:d2,e1:e2,f1:f2,g1:g2,h1)]
+dfStudy$HERFLAG <- as.factor(ifelse(grepl("1", dfStudy$HERFLAG, ignore.case=TRUE), 1, 0))
+
+# Create a vector of the names of the usage flags for later modelling
+useFlag <- c("TOBFLAG", "ALCFLAG", "MRJFLAG", "COCFLAG", "CRKFLAG", "HERFLAG", "HALFLAG",
+             "LSDFLAG", "PCPFLAG", "ECSFLAG", "INHFLAG", "ANLFLAG", "OXYFLAG", "TRQFLAG",
+             "STMFLAG", "CPNSTMFG", "MTHFLAG", "CPNMTHFLG", "SEDFLAG", "PSYFLAG2", "CPNPSYFG",
+             "SUMFLAG", "MESC2", "PSILCY2", "AMYLNIT2", "CLEFLU2", "GAS2", "GLUE2", "ETHER2",
+             "SOLVENT2", "LGAS2", "NITOXID2", "SPPAINT2", "AEROS2", "DARVTYL2", "PERCTYL2",
+             "VICOLOR2", "CODEINE2", "DEMEROL2", "DILAUD2", "FIORICT2", "FIORINL2", "HYDROCD2",
+             "METHDON2", "MORPHIN2", "PHENCOD2", "PROPOXY2", "SK65A2", "STADOL2", "TALACEN2",
+             "TALWIN2", "TALWINX2", "TRAMADL2", "UTRAM2", "OTHANL", "PROCODNP", "OXYCODP2",
+             "HYDCODOP", "TRAMADP", "KLONOPI2", "XNAXATV2", "VALMDIA2", "ATARAX2", "BUSPAR2",
+             "EQUANIL2", "FLEXERL2", "LIBRIUM2", "LIMBTRL2", "MEPROB2", "MILTOWN2", "ROHYPNL2",
+             "SERAX2", "SOMA2", "TRANXEN2", "VISTAR2", "OTHTRN", "BENZOS", "MEPROBPD", "MUSCRELX",
+             "METHDES2", "DIETPIL2", "RITMPHE2", "CYLERT2", "DEXED2", "DETAMP2", "DIDREX2",
+             "ESKAT2", "IONAMIN2", "MAZANOR2", "OBLA2", "PLEGINE2", "PRELUDN2", "SANOREX2",
+             "TENUATE2", "OTHSTM", "AMDEXPHEN", "MAZINDOL", "METHDEXM", "METHAQ2", "NEMBBAR2",
+             "RESTTMA2", "AMYTAL2", "BUTISOL2", "CHHYD2", "DALMANE2", "HALCION2", "PHENOBR2",
+             "PLACIDY2", "TUINAL2", "OTHSED", "RTDALHAL", "ANYBARB")
+
+#********** Conduct some basic exploration of data ************
+plot(dfStudy$HERFLAG, dfStudy$IRSEX, main = "Heroin Use vs Sex", xlab = "1 = Heroin Use", ylab = "Sex")
+plot(dfStudy$HERFLAG, dfStudy$IRMARIT, main = "Heroin Use vs Marital Status", xlab = "1 = Heroin Use", ylab = "Marital Status")
+plot(dfStudy$HERFLAG, dfStudy$EDUCCAT2, main = "Heroin Use vs Education", xlab = "1 = Heroin Use", ylab = "Education")
+plot(dfStudy$HERFLAG, dfStudy$NEWRACE2, main = "Heroin Use vs Race", xlab = "1 = Heroin Use", ylab = "Race")
+plot(dfStudy$HERFLAG, dfStudy$MRJFLAG, main = "Heroin Use vs Marijuana Use", xlab = "1 = Heroin Use", ylab = "1 = Marijuana Use")
+plot(dfStudy$HERFLAG, dfStudy$COCFLAG, main = "Heroin Use vs Cocaine Use", xlab = "1 = Heroin Use", ylab = "1 = Cocaine Use")
+
+
+#********** Version 1 Analysis:  Model heroin use on ALL variables except ones dependent on positive heroin use
+
+# Constrain dataset to remove variables dependent on heroin usage (THESE WERE FOUND VIA RPART or ADABOOST)
+dfV1 <- dfStudy
+dfV1$FUHER18 <- NULL             # Remove first heroin use under 18 
+dfV1$FUHER21 <- NULL             # Remove first heroin use under 21
+dfV1$HERYR <- NULL               # Remove heroin use within the year
+dfV1$HERMON <- NULL              # Remove heroin use within the month
+dfV1$ABODHER <- NULL             # Remove heroin use or dependence within the year
+dfV1$DEPNDHER <- NULL            # Remove heroin dependence
+dfV1$DEPNDILL <- NULL            # Remove dependence on illicit drug (includes heroin)
+dfV1$DEPNDIEM <- NULL            # Remove dependence on illicit drug other than marijuana (includes heroin)
+dfV1$DEPNDXMJ <- NULL            # Remove dependence on illicit drug excluding marijuana (includes heroin)
+dfV1$ABUSEHER <- NULL            # Remove abuse heroin in past year
+dfV1$TXLTHER2 <- NULL            # Remove received treatment for heroin in past year
+dfV1$ABODIEM <- NULL             # Remove illicit drug other than mj use of dependence in past year
+
+# adaboost Focused on Age Variables, and since there are multiples, 
+# we remove duplicate categories and rerun adaboost.
+dfV1$CATAGE <- NULL
+dfV1$CATAG2 <- NULL
+dfV1$CATAG3 <- NULL
+dfV1$CATAG7 <- NULL
+dfV1$ALCAFU2 <- NULL
+dfV1$ALCAFU3 <- NULL
+
+# Create test and training sets
+# 20% of the sample size
+smp_size <- floor(0.50 * nrow(dfV1))
+set.seed(123)
+train_ind <- sample(seq_len(nrow(dfV1)), size = smp_size)
+dfV1.train <- dfV1[train_ind, ]
+dfV1.test <- dfV1[-train_ind, ]
+
+#********** Run a CART decision tree model **********
+fit.dfV1 <- rpart(data = dfV1.train, HERFLAG~., parms = list(split = "information"))
+summary(fit.dfV1)
+varImp(fit.dfV1)
+
+# Visualize trees
+plot(as.party(fit.dfV1), main = "rpart (Entropy) Unpruned Tree")            # Note that this tree is far too complex, with 117 nodes
+plotcp(fit.dfV1, minline = "TRUE", col = "red", main = "rpart (Entropy) Complexity Plot")     # Determine the optimal complexity parameter to prune the rpart tree
+fit.dfV1.prune <- prune(fit.dfV1, cp = 0.025)
+as.party(fit.dfV1.prune)
+plot(as.party(fit.dfV1.prune), main = "rpart (Entropy) Tree with Complexity Parameter 0.025")
+
+# Apply tree model to test dataset and evaluate for fit using binaryEvaluator
+predict.dfV1 <- as.data.frame(predict(fit.dfV1.prune, dfV1.test))
+colnames(predict.dfV1)[2] <- "fitted.values"
+predict.dfV1$y <- dfV1.test$HERFLAG
+binaryEvaluator(predict.dfV1$y, predict.dfV1$fitted.values, .30)
+
+
+
+#********** Run a C5.0 decision tree model **********
+dfV1.train$HLCALLFG <- NULL                                      # C5.0 errored due to no variability in these variables
+dfV1.train$HLCALL99 <- NULL                                      # C5.0 errored due to no variability in these variables
+fit.dfV2 <- C5.0(HERFLAG~., data = dfV1.train, trials = 5, rules = FALSE)
+summary(fit.dfV2)
+varImp(fit.dfV2)
+
+# Generate a graphviz output to print C5.0 tree
+#C5.0.graphviz(fit.dfV2, "dfV2tree.txt", col.question ='cyan')
+
+# predict() couldn't handle large dfV1.test with C5.0 prediction, so try making it smaller
+smp_size <- floor(0.50 * nrow(dfV1.test))
+set.seed(123)
+train_ind <- sample(seq_len(nrow(dfV1.test)), size = smp_size)
+dfV2.test <- dfV1.test[train_ind, ]
+
+
+predict.dfV2 <- as.data.frame(predict(fit.dfV2, dfV2.test, type = "prob"))
+colnames(predict.dfV2)[2] <- "fitted.values"
+predict.dfV2$y <- dfV2.test$HERFLAG
+binaryEvaluator(predict.dfV2$y, predict.dfV2$fitted.values, .35)
+
+
+
+#********** Run an adaboost decision tree model **********
+# Increase the training sample size since we're less concerned about kappa
+smp_size <- floor(0.50 * nrow(dfV1))
+set.seed(123)
+train_ind <- sample(seq_len(nrow(dfV1)), size = smp_size)
+dfV3.train <- dfV1[train_ind, ]
+dfV3.test <- dfV1[-train_ind, ]
+
+fit.dfV3 <- ada(HERFLAG~., data = dfV3.train, iter = 10)
+print(fit.dfV3)
+summary(fit.dfV3)
+varplot(fit.dfV3)
+
+# Apply tree model to test dataset and evaluate for fit using binaryEvaluator
+predict.dfV3 <- as.data.frame(predict(fit.dfV3, dfV3.test, type = "prob"))
+colnames(predict.dfV3)[2] <- "fitted.values"
+predict.dfV3$y <- dfV3.test$HERFLAG
+binaryEvaluator(predict.dfV3$y, predict.dfV3$fitted.values, .19)
+
+
+
+
+#********** Run a Logistic Regression Model **********
+# Modify dataset to include variables identified by adaboost
+# Variables NOT included:  IEMYFU (becuase it depends on age of respondent)
+#                          CATAG6 (probability of heroin use increases with age as a given)
+dfImp <- as.data.frame(da36361.0001$CASEID)
+dfImp$HERFLAG <- as.factor(ifelse(grepl("1", da36361.0001$HERFLAG, ignore.case=TRUE), 1, 0))
+dfImp$EDUCCAT2 <- as.factor(da36361.0001$EDUCCAT2)
+dfImp$SUMAGE <- da36361.0001$SUMAGE
+dfImp$FUCRK18 <- as.factor(ifelse(grepl("yes", da36361.0001$FUMTH18, ignore.case=TRUE), 1, 0))
+#dfImp$CIGPDAY <- as.factor(da36361.0001$CIGPDAY)                                                 # Pulled in final run
+dfImp$CIGALCMO <- as.factor(da36361.0001$CIGALCMO)  
+dfImp$COCMDAYS <- as.factor(da36361.0001$COCMDAYS) 
+dfImp$INHYDAYS <- as.factor(da36361.0001$INHYDAYS) 
+dfImp$FUCOC21 <- as.factor(ifelse(grepl("yes", da36361.0001$FUCOC21, ignore.case=TRUE), 1, 0))      
+#dfImp$TXILLALC <- as.factor(ifelse(grepl("1", da36361.0001$TXILLALC, ignore.case=TRUE), 1, 0))   # Pulled in final run  
+#dfImp$LIBRIUM2 <- as.factor(ifelse(grepl("1", da36361.0001$LIBRIUM2, ignore.case=TRUE), 1, 0))   # Pulled in final run        
+#dfImp$ANLFLAG <- as.factor(ifelse(grepl("1", da36361.0001$ANLFLAG, ignore.case=TRUE), 1, 0))     # Pulled in final run    
+#dfImp$HALFLAG <- as.factor(ifelse(grepl("1", da36361.0001$HALFLAG, ignore.case=TRUE), 1, 0))     # Pulled in final run  
+dfImp$CPNMTHFG <- as.factor(ifelse(grepl("1", da36361.0001$CPNMTHFG, ignore.case=TRUE), 1, 0))
+dfImp$TRQFLAG <- as.factor(ifelse(grepl("1", da36361.0001$TRQFLAG, ignore.case=TRUE), 1, 0))
+dfImp$FUHAL21 <- as.factor(ifelse(grepl("Yes", da36361.0001$FUHAL21, ignore.case=TRUE), 1, 0))
+dfImp$BENZOS <- as.factor(ifelse(grepl("1", da36361.0001$BENZOS, ignore.case=TRUE), 1, 0))
+dfImp$IRSEX <- as.factor(ifelse(grepl("1", da36361.0001$IRSEX, ignore.case=TRUE), 1, 0))
+
+dfImp[,1] <- NULL
+
+# Reorder EDUCCAT2 so that dummary variable creation uses age 12-17 as the base case
+dfImp$EDUCCAT2 <- as.factor(ifelse(grepl("(5)", dfImp$EDUCCAT2), "(1) Under 18",
+                              ifelse(grepl("Less", dfImp$EDUCCAT2), "(2) Less than high school",
+                                 ifelse(grepl("school graduate", dfImp$EDUCCAT2), "(3) High school graduate",
+                                   ifelse(grepl("Some", dfImp$EDUCCAT2), "(4) Some college",
+                                          "(5) College graduate")))))
+                                          
+# Reorder CIGPDAY so that dummary variable creation uses No Daily Use as the base case
+#dfImp$CIGPDAY <- as.factor(ifelse(grepl("Daily", dfImp$CIGPDAY), "(1) No Daily Use",
+#                                   ifelse(grepl("Fewer", dfImp$CIGPDAY), "(2) Fewer than 6",
+#                                          ifelse(grepl("6-15", dfImp$CIGPDAY), "(3) 6-15",
+#                                                 ifelse(grepl("More", dfImp$CIGPDAY), "(4) 26 or More",
+#                                                        "(5) Not Reported")))))
+
+# Reorder COCMDAYS so that dummary variable creation uses No Daily Use as the base case
+dfImp$COCMDAYS <- as.factor(ifelse(grepl("Non", dfImp$COCMDAYS), "(1) Non User",
+                                   ifelse(grepl("1-2", dfImp$COCMDAYS), "(2) 1-2",
+                                          ifelse(grepl("3-5", dfImp$COCMDAYS), "(3) 3-5",
+                                                 ifelse(grepl("6-19", dfImp$COCMDAYS), "(4) 6-19",
+                                                        "(5) More than 19")))))
+
+# Reorder INHYDAYS so that dummary variable creation uses No Daily Use as the base case
+dfImp$INHYDAYS <- as.factor(ifelse(grepl("Non", dfImp$INHYDAYS), "(1) Non User",
+                                   ifelse(grepl("1-11", dfImp$INHYDAYS), "(2) 1-11",
+                                          ifelse(grepl("12-49", dfImp$INHYDAYS), "(3) 12-49",
+                                                 ifelse(grepl("50-99", dfImp$INHYDAYS), "(4) 50-99",
+                                                        "(5) More than 99")))))
+
+# Reorder CIGALCMO so that dummary variable creation uses No Past Mon Use as the base case
+dfImp$CIGALCMO <- as.factor(ifelse(grepl("Cig/Alc", dfImp$CIGALCMO), "(1) No Past Mon Use of Cig/Alc",
+                                  ifelse(grepl("Cig & Alc", dfImp$CIGALCMO), "(2) Past Mon Use of Cig & Alc",
+                                         ifelse(grepl("Cig & No", dfImp$CIGALCMO), "(3) Past Mon Use of Cig & No Alc",
+                                                "(4) Past Mon Use of Alc & No Cig"))))
+
+# Convert SUMAGE into a factor variable
+dfImp$SUMAGE <- ifelse(is.na(dfImp$SUMAGE), "(1) Never used",
+                   ifelse(dfImp$SUMAGE<18, "(2) Under 18",
+                       ifelse(dfImp$SUMAGE<26, "(3) 18-25",
+                              ifelse(dfImp$SUMAGE<35, "(4) 26-34",
+                                     ifelse(dfImp$SUMAGE<50, "(5) 35-49",
+                                            ifelse(dfImp$SUMAGE<65, "(6) 50-64",
+                                                   "(7) 65-99"))))))
+dfImp$SUMAGE <- as.factor(dfImp$SUMAGE)
+
+# Create test and training datasets
+smp_size <- floor(0.50 * nrow(dfImp))
+set.seed(123)
+train_ind <- sample(seq_len(nrow(dfImp)), size = smp_size)
+dfImp.train <- dfImp[train_ind, ]
+dfImp.test <- dfImp[-train_ind, ]
+
+# Run glm logistic regression model
+fit.lr <- glm(data=dfImp.train, HERFLAG ~ ., family="binomial")
+
+summary(fit.lr)  # Summarize logistic regression model
+cat("Odds factors for glm model are:")
+exp(coef(fit.lr))
+
+# Standard plots for logistic regression
+plot(fit.lr)
+
+# Leverage and Influence
+influence.measures(fit.lr)
+
+influencePlot(fit.lr)
+
+vif(fit.lr)
+
+
+#  Estimate best cutoff value from an accuracy curve
+pred <- prediction(fit.lr$fitted.values, fit.lr$y)
+perf <- performance(pred, "acc")
+plot(perf, avg= "vertical", main = "Accuracy by Cutoff Value for Logistic Regression",
+     spread.estimate="boxplot", 
+     show.spread.at= seq(0.1, 0.9, by=0.1))
+
+# Apply glm model to test dataset and evaluate for fit using binaryEvaluator
+predict.lr <- as.data.frame(predict(fit.lr, newdata = dfImp.test, type = "response"))
+colnames(predict.lr)[1] <- "fitted.values"
+predict.lr$y <- dfImp.test$HERFLAG
+binaryEvaluator(predict.lr$y, predict.lr$fitted.values, .14)
+

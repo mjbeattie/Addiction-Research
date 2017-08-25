@@ -1,0 +1,131 @@
+Call:
+rpart(formula = HERFLAG ~ ., data = dfV1.train, parms = list(split = "information"))
+  n= 11054 
+
+          CP nsplit rel error    xerror       xstd
+1 0.03590426      0 1.0000000 1.0000000 0.07230964
+2 0.01773050      4 0.8563830 0.9361702 0.07000246
+3 0.01595745      7 0.8031915 1.0106383 0.07268656
+4 0.01196809      9 0.7712766 0.9893617 0.07193060
+5 0.01063830     14 0.6914894 1.0425532 0.07380493
+6 0.01000000     17 0.6542553 1.0425532 0.07380493
+
+Variable importance
+ COCFLAG  FUCOC21  LSDFLAG  CRKFLAG  FUCOC18  HALFLAG PERCTYL2 OXYCODP2 VICOLOR2   OTHANL HYDCODOP 
+      23       14        7        7        6        6        5        5        2        2        2 
+ OXYFLAG MORPHIN2  PCPFLAG  FUCRK21  IREDUC2  FUPCP21 ALCMDAYS TXILALEV  PSYYFU2 TRAMADL2   IEMYFU 
+       2        2        1        1        1        1        1        1        1        1        1 
+ FUCRK18  FUPCP18 BINGEHVY MRJMDAYS 
+       1        1        1        1 
+
+            Overall
+ALCAFU2    4.295735
+ALCAVGM    4.432819
+ALCMDAYS   6.801910
+ALCYDAYS   4.964167
+ANYBARB    4.594700
+BINGEHVY   9.812449
+CATAG3     8.860330
+CATAG6     8.860330
+CATAG7     9.310066
+CIGMDAYS   3.166496
+CIGPDAY   12.011796
+COCFLAG  291.997719
+CRKFLAG   42.702429
+DIETPIL2   5.342655
+DILAUD2   14.838211
+ECSFLAG    1.632274
+EMPSTATY   3.493968
+FUANL21    4.406734
+FUCRK18    7.526250
+FUCRK21    9.876237
+FUHAL21   15.410715
+FUPCP21   12.824914
+FUPSY21    1.648907
+HALFLAG  247.005510
+HEALTH2    2.668997
+HYDROCD2   1.665725
+IEMFLAG  235.511061
+IEMYFU    10.588713
+ILALMON    6.113814
+ILLPCAID   4.493079
+ILORALC    8.790041
+INCOME     4.107844
+IREDUC2   26.109259
+K6SCMAX    4.100761
+K6SCMON    5.008220
+LSDFLAG    3.889945
+METHDON2   4.386414
+MORPHIN2  83.124858
+MRJMDAYS  11.502550
+MRJYDAYS   6.105985
+NILALMON   6.113814
+OTHANL    55.353244
+OXYCODP2 316.762426
+PCPFLAG   34.450216
+PERCTYL2 315.859491
+PSYAGE2    1.648907
+PSYYFU2   13.609813
+SUMAGE     3.988651
+TRAMADL2  10.121442
+TRAMADP    2.856482
+TXILALEV  96.673646
+TXPCAID2   4.493079
+
+
+**************** PRUNED TREE OUTPUT
+Fitted party:
+[1] root
+|   [2] COCFLAG in (0) Never used (IRCOCRC = 9): 0 (n = 9727, err = 0.2%)
+|   [3] COCFLAG in (1) Ever used (IRCOCRC = 1-3)
+|   |   [4] PERCTYL2 in (0) No/Unknown (Otherwise): 0 (n = 936, err = 5.3%)
+|   |   [5] PERCTYL2 in (1) Yes (PERCTYLX=1,3)
+|   |   |   [6] MORPHIN2 in (0) No/Unknown (Otherwise): 0 (n = 284, err = 20.1%)
+|   |   |   [7] MORPHIN2 in (1) Yes (ANLCARD and MORPHINE=1,3)
+|   |   |   |   [8] TXILALEV in (0) No/Unknown (Otherwise): 0 (n = 42, err = 28.6%)
+|   |   |   |   [9] TXILALEV in (1) Yes (TXEVER=1): 1 (n = 65, err = 29.2%)
+
+Number of inner nodes:    4
+Number of terminal nodes: 5
+
+
+***************** BINARY EVALUATOR OUTPUT
+$AUC
+$AUC[[1]]
+[1] 0.9262817
+
+
+$`D Statistic`
+[1] 0.2399654
+
+$`KS Statistic`
+  Group   CumPct0   CumPct1       Dif
+1     1 0.9752433 0.4164456 0.5587977
+2     2 0.9752433 0.4164456 0.5587977
+
+$`Confusion Matrix`
+Confusion Matrix and Statistics
+
+          Reference
+Prediction     0     1
+         0 43233   230
+         1   498   256
+                                          
+               Accuracy : 0.9835          
+                 95% CI : (0.9823, 0.9847)
+    No Information Rate : 0.989           
+    P-Value [Acc > NIR] : 1               
+                                          
+                  Kappa : 0.4049          
+ Mcnemar's Test P-Value : <2e-16          
+                                          
+            Sensitivity : 0.9886          
+            Specificity : 0.5267          
+         Pos Pred Value : 0.9947          
+         Neg Pred Value : 0.3395          
+             Prevalence : 0.9890          
+         Detection Rate : 0.9777          
+   Detection Prevalence : 0.9829          
+      Balanced Accuracy : 0.7577          
+                                          
+       'Positive' Class : 0               

@@ -1,0 +1,132 @@
+Call:
+glm(formula = HERFLAG ~ ., family = "binomial", data = dfImp.train)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.3970  -0.0952   0.0000   0.0000   3.5841  
+
+Coefficients:
+                                          Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                               -22.6301   306.5130  -0.074 0.941145    
+EDUCCAT2(2) Less than high school           1.7907     0.5076   3.528 0.000419 ***
+EDUCCAT2(3) High school graduate            1.5543     0.4983   3.119 0.001815 ** 
+EDUCCAT2(4) Some college                    1.6278     0.4996   3.258 0.001120 ** 
+EDUCCAT2(5) College graduate                1.3788     0.5195   2.654 0.007958 ** 
+SUMAGE(2) Under 18                         15.8577   306.5128   0.052 0.958739    
+SUMAGE(3) 18-25                            15.3783   306.5129   0.050 0.959985    
+SUMAGE(4) 26-34                            16.1577   306.5133   0.053 0.957959    
+SUMAGE(5) 35-49                            -0.9174  2449.1966   0.000 0.999701    
+SUMAGE(6) 50-64                            -0.8336  6095.1701   0.000 0.999891    
+SUMAGE(7) 65-99                            -1.1358  9506.5148   0.000 0.999905    
+FUCRK181                                    0.4691     0.2083   2.252 0.024316 *  
+CIGPDAY(2) Fewer than 6                     0.4740     0.2997   1.582 0.113681    
+CIGPDAY(3) 6-15                             0.6087     0.2339   2.602 0.009256 ** 
+CIGPDAY(4) 26 or More                       0.9671     0.3537   2.734 0.006254 ** 
+CIGPDAY(5) Not Reported                     0.8576     0.2354   3.644 0.000269 ***
+CIGALCMO(2) Past Mon Use of Cig & Alc      -0.4230     0.2472  -1.711 0.087116 .  
+CIGALCMO(3) Past Mon Use of Cig & No Alc   -0.1438     0.2885  -0.499 0.618078    
+CIGALCMO(4) Past Mon Use of Alc & No Cig   -0.5482     0.2373  -2.311 0.020859 *  
+FUCOC211                                    1.0973     0.1573   6.974 3.07e-12 ***
+TXILLALC1                                   1.2883     0.1875   6.870 6.41e-12 ***
+LIBRIUM21                                   1.8509     0.5285   3.502 0.000461 ***
+ANLFLAG1                                    1.2383     0.1623   7.630 2.36e-14 ***
+HALFLAG1                                    1.6239     0.1930   8.414  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 2897.5  on 16580  degrees of freedom
+Residual deviance: 1618.3  on 16557  degrees of freedom
+AIC: 1666.3
+
+Number of Fisher Scoring iterations: 20
+
+> cat("Odds factors for glm model are:")
+Odds factors for glm model are:
+> exp(coef(fit.lr))
+                             (Intercept)        EDUCCAT2(2) Less than high school 
+                            1.485554e-10                             5.993592e+00 
+        EDUCCAT2(3) High school graduate                 EDUCCAT2(4) Some college 
+                            4.731662e+00                             5.092608e+00 
+            EDUCCAT2(5) College graduate                       SUMAGE(2) Under 18 
+                            3.970014e+00                             7.707478e+06 
+                         SUMAGE(3) 18-25                          SUMAGE(4) 26-34 
+                            4.772186e+06                             1.040390e+07 
+                         SUMAGE(5) 35-49                          SUMAGE(6) 50-64 
+                            3.995530e-01                             4.344995e-01 
+                         SUMAGE(7) 65-99                                 FUCRK181 
+                            3.211756e-01                             1.598568e+00 
+                 CIGPDAY(2) Fewer than 6                          CIGPDAY(3) 6-15 
+                            1.606483e+00                             1.838113e+00 
+                   CIGPDAY(4) 26 or More                  CIGPDAY(5) Not Reported 
+                            2.630335e+00                             2.357517e+00 
+   CIGALCMO(2) Past Mon Use of Cig & Alc CIGALCMO(3) Past Mon Use of Cig & No Alc 
+                            6.550888e-01                             8.660453e-01 
+CIGALCMO(4) Past Mon Use of Alc & No Cig                                 FUCOC211 
+                            5.779723e-01                             2.996062e+00 
+                               TXILLALC1                                LIBRIUM21 
+                            3.626783e+00                             6.365388e+00 
+                                ANLFLAG1                                 HALFLAG1 
+                            3.449904e+00                             5.072753e+00 
+
+
+***************** OBSERVATION AND VARIABLE INFLUENCE FACTORS ******************
+            StudRes          Hat       CookD
+2324  -4.783603e-05 0.2421087933 1.73265e-11
+36045  3.596920e+00 0.0001499016 3.84079e-03
+20466  3.383948e+00 0.0016449298 1.71076e-02
+> vif(fit.lr)
+             GVIF Df GVIF^(1/(2*Df))
+EDUCCAT2 1.192565  4        1.022257
+SUMAGE   1.186666  6        1.014365
+FUCRK18  1.085626  1        1.041934
+CIGPDAY  2.025690  4        1.092249
+CIGALCMO 2.153950  3        1.136421
+FUCOC21  1.277222  1        1.130142
+TXILLALC 1.061605  1        1.030342
+LIBRIUM2 1.017008  1        1.008468
+ANLFLAG  1.090831  1        1.044429
+HALFLAG  1.233110  1        1.110455
+
+
+
+************** BINARY EVALUATOR OUTPUT ***********
+$AUC
+$AUC[[1]]
+[1] 0.9627096
+
+
+$`D Statistic`
+[1] 0.2274903
+
+$`KS Statistic`
+  Group   CumPct0   CumPct1       Dif
+1     1 0.9643223 0.2961832 0.6681391
+
+$`Confusion Matrix`
+Confusion Matrix and Statistics
+
+          Reference
+Prediction     0     1
+         0 37430   605
+         1   324   331
+                                          
+               Accuracy : 0.976           
+                 95% CI : (0.9744, 0.9775)
+    No Information Rate : 0.9758          
+    P-Value [Acc > NIR] : 0.4168          
+                                          
+                  Kappa : 0.4042          
+ Mcnemar's Test P-Value : <2e-16          
+                                          
+            Sensitivity : 0.9914          
+            Specificity : 0.3536          
+         Pos Pred Value : 0.9841          
+         Neg Pred Value : 0.5053          
+             Prevalence : 0.9758          
+         Detection Rate : 0.9674          
+   Detection Prevalence : 0.9831          
+      Balanced Accuracy : 0.6725          
+                                          
+       'Positive' Class : 0            

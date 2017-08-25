@@ -1,0 +1,71 @@
+Call:
+ada(HERFLAG ~ ., data = dfV3.train, iter = 10)
+
+Loss: exponential Method: discrete   Iteration: 10 
+
+Final Confusion Matrix for Data:
+          Final Prediction
+True value     0     1
+         0 27111    40
+         1   270   214
+
+Train Error: 0.011 
+
+Out-Of-Bag Error:  0.013  iteration= 10 
+
+Additional Estimates of number of iterations:
+
+train.err1 train.kap1 
+         9          9 
+
+> summary(fit.dfV3)
+Call:
+ada(HERFLAG ~ ., data = dfV3.train, iter = 10)
+
+Loss: exponential Method: discrete   Iteration: 10 
+
+Training Results
+
+Accuracy: 0.989 Kappa: 0.575 
+
+
+************** BINARY EVALUATOR OUTPUT (PROB 0.19)
+$AUC
+$AUC[[1]]
+[1] 0.9222888
+
+
+$`D Statistic`
+[1] 0.3015609
+
+$`KS Statistic`
+  Group   CumPct0   CumPct1       Dif
+1     1 0.9685039 0.2445415 0.7239625
+
+$`Confusion Matrix`
+Confusion Matrix and Statistics
+
+          Reference
+Prediction     0     1
+         0 26840   338
+         1   195   263
+                                         
+               Accuracy : 0.9807         
+                 95% CI : (0.979, 0.9823)
+    No Information Rate : 0.9783         
+    P-Value [Acc > NIR] : 0.002323       
+                                         
+                  Kappa : 0.487          
+ Mcnemar's Test P-Value : 7.714e-10      
+                                         
+            Sensitivity : 0.9928         
+            Specificity : 0.4376         
+         Pos Pred Value : 0.9876         
+         Neg Pred Value : 0.5742         
+             Prevalence : 0.9783         
+         Detection Rate : 0.9712         
+   Detection Prevalence : 0.9834         
+      Balanced Accuracy : 0.7152         
+                                         
+       'Positive' Class : 0              
+                                  
